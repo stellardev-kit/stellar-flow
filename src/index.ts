@@ -1,4 +1,4 @@
-export { TxBuilder } from './TxBuilder';
+export { TxBuilder, BuiltTransaction, FeeBumpBuiltTransaction } from './TxBuilder';
 export { ScVal } from './soroban';
 export { TxBuilderValidationError, TxBuilderNetworkError, TxBuilderSubmitError } from './errors';
 export type {
@@ -13,7 +13,9 @@ export type {
   ManageDataParams,
   InvokeContractParams,
   TimeboundParams,
-  BuiltTransaction,
+  InspectableBuiltTransaction,
+  FeeBumpOptions,
+  FeeBumpFromXDROptions,
   SubmitResult,
   TxDescription,
   OperationDescription,

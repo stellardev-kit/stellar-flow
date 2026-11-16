@@ -237,22 +237,31 @@ for constructing Soroban arguments: `ScVal.Address()`, `ScVal.i128()`,
 
 ---
 
-### Why does `wrapInFeeBump()` throw during `build()`?
+### How do I sponsor transaction fees using a fee-bump transaction?
 
-The fee bump implementation requires resolving a SDK compatibility path for
-`TransactionBuilder.buildFeeBumpTransaction()`. It is planned for v0.6.0. For
-now, use the Stellar SDK directly:
+Fee-bump transactions (CAP-0015) are supported post-build via `InspectableBuiltTransaction.prototype.wrapInFeeBump()`.
+
+Under CAP-0015, the outer fee-bump envelope covers the inner transaction *including all of its inner signatures*. Therefore, inner transactions must be fully built and signed before wrapping:
 
 ```typescript
-import { TransactionBuilder, Keypair, Networks } from '@stellar/stellar-sdk';
+import { TxBuilder } from '@stellarbuild/stellar-flow';
 
-const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
-  feePayer,
-  '500',
-  innerTransaction,
-  Networks.TESTNET
-);
+// 1. Build and sign inner transaction
+const tx = await builder.build();
+tx.sign(sourceKeypair);
+
+// 2. Wrap in fee-bump envelope
+const feeBump = tx.wrapInFeeBump({
+  feeSource: sponsorKeypair,
+  baseFee: '200',
+});
+
+// 3. Sponsor signs outer fee-bump envelope and submits
+feeBump.sign(sponsorKeypair);
+const result = await feeBump.submit();
 ```
+
+Calling `TxBuilder.prototype.wrapInFeeBump()` on an unbuilt builder throws synchronously with instructions to guide developers to the post-build workflow.
 
 ---
 

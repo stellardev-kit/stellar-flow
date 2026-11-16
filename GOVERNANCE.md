@@ -22,11 +22,11 @@ actually is rather than a description of a process that doesn't exist yet.
 ## How to get involved
 
 - **Report bugs or request features:** open a
-  [GitHub issue](https://github.com/stellarbuild/stellar-flow/issues).
+  [GitHub issue](https://github.com/stellardev-kit/stellar-flow/issues).
 - **Contribute code or docs:** see [CONTRIBUTING.md](CONTRIBUTING.md) and open
   a pull request. All PRs are reviewed by the maintainer before merge.
 - **Ask questions:** open a
-  [discussion](https://github.com/stellarbuild/stellar-flow/discussions)
+  [discussion](https://github.com/stellardev-kit/stellar-flow/discussions)
   or an issue.
 
 Contributors who submit sustained, high-quality PRs may be invited to take on

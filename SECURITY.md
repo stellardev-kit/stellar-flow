@@ -52,7 +52,7 @@ vulnerability.**
 Use GitHub's built-in private reporting feature, which keeps the report
 private to the maintainer until a fix is ready:
 
-1. Go to the [Security tab](https://github.com/stellarbuild/stellar-flow/security)
+1. Go to the [Security tab](https://github.com/stellardev-kit/stellar-flow/security)
    of this repository.
 2. Click **"Report a vulnerability"**.
 3. Fill in the report form with as much detail as possible, including:

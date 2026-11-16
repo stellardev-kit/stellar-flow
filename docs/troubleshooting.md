@@ -242,12 +242,23 @@ For mainnet, use `'https://soroban.stellar.org'`.
 
 ---
 
-### `Fee bump transaction requires SDK compatibility fixes`
+### `TxBuilder.wrapInFeeBump() is deprecated and not supported`
 
-**Cause:** `wrapInFeeBump()` has not been fully implemented yet.
+**Cause:** Calling `wrapInFeeBump()` on an unbuilt `TxBuilder` instance. In Stellar CAP-0015, the outer fee-bump envelope covers the inner transaction including its signatures; wrapping must happen after building and signing the inner transaction.
 
-**Fix:** Use `TransactionBuilder.buildFeeBumpTransaction()` from `@stellar/stellar-sdk`
-directly. See [FAQ.md](../FAQ.md) for an example.
+**Fix:** Build and sign the inner transaction first, then call `.wrapInFeeBump()` on the returned `InspectableBuiltTransaction`:
+
+```typescript
+const tx = await builder.build();
+tx.sign(sourceKeypair);
+
+const feeBump = tx.wrapInFeeBump({
+  feeSource: sponsorKeypair,
+  baseFee: '200',
+});
+feeBump.sign(sponsorKeypair);
+await feeBump.submit();
+```
 
 ---
 
@@ -255,6 +266,6 @@ directly. See [FAQ.md](../FAQ.md) for an example.
 
 If your issue is not listed here:
 
-1. Search [existing GitHub issues](https://github.com/stellarbuild/stellar-flow/issues).
-2. Ask in [GitHub Discussions](https://github.com/stellarbuild/stellar-flow/discussions).
+1. Search [existing GitHub issues](https://github.com/stellardev-kit/stellar-flow/issues).
+2. Ask in [GitHub Discussions](https://github.com/stellardev-kit/stellar-flow/discussions).
 3. Include your `stellar-flow` version, `@stellar/stellar-sdk` version, Node.js version, and a minimal reproduction.

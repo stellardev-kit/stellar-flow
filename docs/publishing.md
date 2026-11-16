@@ -28,13 +28,14 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/):
 
 ## Release Process
 
-### Step 1: Prepare the release branch
+### Step 1: Ensure main is up to date and create a release branch
 
-Ensure you are on `develop` and up to date:
+Ensure your local `main` is up to date, then create a short-lived release branch:
 
 ```bash
-git checkout develop
-git pull upstream develop
+git checkout main
+git pull upstream main
+git checkout -b release/v0.4.0
 ```
 
 ### Step 2: Update `CHANGELOG.md`
@@ -54,40 +55,34 @@ Move the items under `[Unreleased]` to a new version section:
 
 Update the comparison links at the bottom of the file.
 
-### Step 3: Bump the version
+### Step 3: Bump the version and commit
 
 ```bash
-npm version patch   # or minor, major, prepatch, preminor, premajor
-```
+# Bump version in package.json without creating a git tag yet:
+npm version patch --no-git-tag-version
 
-This updates `package.json` and creates a git commit and tag automatically.
-
-Alternatively, edit `package.json` manually and create the tag by hand:
-
-```bash
-# Edit version in package.json manually, then:
 git add package.json CHANGELOG.md
 git commit -m "chore: release v0.4.0"
-git tag v0.4.0
 ```
 
-### Step 4: Open a release PR
+### Step 4: Open and merge the release PR
 
-Push the release branch and open a PR from `develop` → `main`:
+Push the release branch and open a PR targeting `main`:
 
 ```bash
-git push origin develop
+git push origin release/v0.4.0
 ```
 
-Label the PR `release: v0.4.0`. Require at least one maintainer approval.
+Label the PR `release: v0.4.0`. Once all CI checks pass and required maintainer reviews are approved, merge the PR into `main`.
 
-### Step 5: Merge and push the tag
+### Step 5: Pull main and push the version tag
 
-After the PR is approved and merged:
+After the release PR is merged into `main`, pull the updated `main` locally, tag the release, and push the tag:
 
 ```bash
 git checkout main
 git pull upstream main
+git tag v0.4.0
 git push upstream v0.4.0   # Push the tag to trigger release.yml
 ```
 
@@ -102,7 +97,7 @@ Pushing the tag triggers the `release.yml` GitHub Actions workflow which:
 5. Creates a GitHub Release with auto-generated release notes
 
 Monitor the workflow at:
-`https://github.com/stellarbuild/stellar-flow/actions/workflows/release.yml`
+`https://github.com/stellardev-kit/stellar-flow/actions/workflows/release.yml`
 
 ### Step 7: Verify the release
 

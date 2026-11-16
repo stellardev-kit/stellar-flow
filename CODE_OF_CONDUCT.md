@@ -59,7 +59,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behaviour may be
 reported by opening a private security advisory via the
-[Security tab](https://github.com/stellarbuild/stellar-flow/security),
+[Security tab](https://github.com/stellardev-kit/stellar-flow/security),
 or by contacting the maintainer directly through their
 [GitHub profile](https://github.com/T-kesh).
 

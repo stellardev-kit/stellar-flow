@@ -4,13 +4,13 @@
   "description": "Fluent, type-safe TypeScript transaction builder for the Stellar network",
   "author": "StellarBuild <hello@stellarbuild.io> (https://stellarbuild.io)",
   "license": "MIT",
-  "homepage": "https://github.com/stellarbuild/stellar-flow#readme",
+  "homepage": "https://github.com/stellardev-kit/stellar-flow#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stellarbuild/stellar-flow.git"
+    "url": "git+https://github.com/stellardev-kit/stellar-flow.git"
   },
   "bugs": {
-    "url": "https://github.com/stellarbuild/stellar-flow/issues"
+    "url": "https://github.com/stellardev-kit/stellar-flow/issues"
   },
   "keywords": [
     "stellar",

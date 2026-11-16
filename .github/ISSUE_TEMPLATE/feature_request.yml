@@ -8,8 +8,8 @@ body:
     attributes:
       value: |
         Thank you for suggesting an improvement. Before submitting, please search
-        [existing issues](https://github.com/stellarbuild/stellar-flow/issues) and the
-        [roadmap](https://github.com/stellarbuild/stellar-flow/blob/main/ROADMAP.md) to see if
+        [existing issues](https://github.com/stellardev-kit/stellar-flow/issues) and the
+        [roadmap](https://github.com/stellardev-kit/stellar-flow/blob/main/ROADMAP.md) to see if
         this is already planned.
 
   - type: dropdown

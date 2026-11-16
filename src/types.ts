@@ -1,4 +1,4 @@
-import type { Keypair, Networks, xdr } from '@stellar/stellar-sdk';
+import type { Keypair, LiquidityPoolAsset, Networks, xdr } from '@stellar/stellar-sdk';
 
 /**
  * Supported Stellar network passphrases
@@ -25,6 +25,7 @@ export interface PaymentParams {
   amount: string;
   asset: 'XLM' | { code: string; issuer: string };
   memo?: string;
+  sourceAccount?: string;
 }
 
 /**
@@ -33,14 +34,16 @@ export interface PaymentParams {
 export interface CreateAccountParams {
   destination: string;
   startingBalance: string; // minimum 1 XLM
+  sourceAccount?: string;
 }
 
 /**
  * Parameters for changing a trustline
  */
 export interface ChangeTrustParams {
-  asset: { code: string; issuer: string };
+  asset: { code: string; issuer: string } | LiquidityPoolAsset;
   limit?: string; // omit to remove trustline
+  sourceAccount?: string;
 }
 
 /**
@@ -52,6 +55,7 @@ export interface ManageOfferParams {
   amount: string;
   price: string | { n: number; d: number };
   offerId?: string; // defaults to 0 (new offer)
+  sourceAccount?: string;
 }
 
 /**
@@ -63,6 +67,7 @@ export interface ManageBuyOfferParams {
   amount: string;
   price: string | { n: number; d: number };
   offerId?: string; // defaults to 0 (new offer)
+  sourceAccount?: string;
 }
 
 /**
@@ -75,6 +80,7 @@ export interface PathPaymentParams {
   destAsset: { code: string; issuer: string } | 'XLM';
   destAmount: string;
   path?: ({ code: string; issuer: string } | 'XLM')[];
+  sourceAccount?: string;
 }
 
 /**
@@ -95,6 +101,7 @@ export interface SetOptionsParams {
     preAuthTx?: string;
     weight: number;
   };
+  sourceAccount?: string;
 }
 
 /**
@@ -102,7 +109,8 @@ export interface SetOptionsParams {
  */
 export interface ManageDataParams {
   name: string;
-  value: string;
+  value?: string | null;
+  sourceAccount?: string;
 }
 
 /**
@@ -119,6 +127,8 @@ export interface InvokeContractParams {
     | { amount: string; asset: { code: string; issuer: string } | 'XLM' }
     | xdr.ScVal
   )[];
+  auth?: xdr.SorobanAuthorizationEntry[];
+  sourceAccount?: string;
 }
 
 /**
@@ -159,6 +169,32 @@ export interface TxDescription {
 }
 
 /**
+ * Options for wrapping a transaction in a fee-bump envelope
+ */
+export interface FeeBumpOptions {
+  /**
+   * Account paying the transaction fee. Can be an Ed25519 public key (G...),
+   * a muxed account (M...), or a Keypair instance.
+   */
+  feeSource: string | Keypair;
+
+  /**
+   * Inclusion fee rate in stroops per operation.
+   * If omitted, defaults to max(100, ceil(innerInclusionFeeRate)).
+   */
+  baseFee?: string | number;
+}
+
+/**
+ * Options for restoring a fee-bump transaction envelope from XDR
+ */
+export interface FeeBumpFromXDROptions {
+  network?: 'mainnet' | 'testnet' | 'futurenet';
+  networkPassphrase?: string;
+  horizonUrl?: string;
+}
+
+/**
  * A built transaction ready for signing and submission
  */
 export interface BuiltTransaction {
@@ -166,6 +202,58 @@ export interface BuiltTransaction {
   sign: (keypair: Keypair) => BuiltTransaction;
   submit: () => Promise<SubmitResult>;
   toXDR: () => string;
+}
+
+/**
+ * An inspectable built transaction providing cryptographic hash, signature metadata,
+ * and post-build fee-bump wrapping.
+ */
+export interface InspectableBuiltTransaction extends BuiltTransaction {
+  sign(keypair: Keypair): InspectableBuiltTransaction;
+  hash(): string;
+  readonly signatures: readonly {
+    readonly hint: string;
+    readonly signature: string;
+  }[];
+  wrapInFeeBump(options: FeeBumpOptions): FeeBumpBuiltTransaction;
+}
+
+/**
+ * A fee-bump transaction ready for outer signing and submission
+ */
+export interface FeeBumpBuiltTransaction extends BuiltTransaction {
+  /** Signs the outer fee-bump envelope with the fee-source keypair */
+  sign(keypair: Keypair): FeeBumpBuiltTransaction;
+
+  /** Fee source account address (G... or M...) */
+  readonly feeSource: string;
+
+  /** Total outer fee in stroops (string representation of int64) */
+  readonly fee: string;
+
+  /** Cryptographic hash of the outer fee-bump transaction */
+  hash(): string;
+
+  /** Cryptographic hash of the inner transaction */
+  innerHash(): string;
+
+  /** Signatures on the outer fee-bump envelope */
+  readonly signatures: readonly {
+    readonly hint: string;
+    readonly signature: string;
+  }[];
+
+  /** Signatures on the inner transaction envelope */
+  readonly innerSignatures: readonly {
+    readonly hint: string;
+    readonly signature: string;
+  }[];
+
+  /** Source account of the inner transaction */
+  readonly innerSource: string;
+
+  /** Serializes only the inner transaction envelope to base64 XDR */
+  innerToXDR(): string;
 }
 
 /**

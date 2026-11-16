@@ -3,7 +3,7 @@
 <div align="center">
 
 [![npm version](https://img.shields.io/npm/v/@stellarbuild/stellar-flow.svg?style=flat-square)](https://www.npmjs.com/package/@stellarbuild/stellar-flow)
-[![CI](https://github.com/stellarbuild/stellar-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/stellarbuild/stellar-flow/actions/workflows/ci.yml)
+[![CI](https://github.com/stellardev-kit/stellar-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/stellardev-kit/stellar-flow/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Stellar SDK](https://img.shields.io/badge/Stellar%20SDK-%3E%3D12-blueviolet?style=flat-square)](https://github.com/stellar/js-stellar-sdk)
@@ -267,6 +267,41 @@ const tx = await TxBuilder.for(keypair, { network: 'testnet' })
   .build();
 ```
 
+**Pattern 4: Reconstruct and inspect transaction envelopes with `TxBuilder.fromXDR()`**
+
+Restore a builder from an existing base64-encoded transaction envelope to inspect operations, override fees, or append operations:
+
+```typescript
+// Reconstruct builder from existing envelope
+const restored = TxBuilder.fromXDR(xdrString, { network: 'testnet' });
+
+// Inspect operations and parameters before taking action
+const description = restored.describe();
+console.log('Restored operations:', description.operations);
+```
+
+**Pattern 5: Sponsor transaction fees with CAP-0015 fee-bump envelopes**
+
+Sponsor another account's transaction fees without modifying inner operations, account sequence, or inner signatures:
+
+```typescript
+// 1. Build and sign inner transaction first
+const tx = await TxBuilder.for(userKeypair, { network: 'testnet' })
+  .addPayment({ destination: DEST, amount: '50', asset: 'XLM' })
+  .build();
+tx.sign(userKeypair);
+
+// 2. Sponsor wraps the signed transaction in a fee-bump envelope
+const feeBump = tx.wrapInFeeBump({
+  feeSource: sponsorKeypair, // G-address, M-address, or Keypair
+  baseFee: '200',            // optional inclusion fee rate in stroops
+});
+
+// 3. Sponsor signs and submits the outer envelope
+feeBump.sign(sponsorKeypair);
+await feeBump.submit();
+```
+
 ### Planned agent-specific improvements
 
 The roadmap includes features specifically motivated by agentic use cases — see [ROADMAP.md](ROADMAP.md) for the full picture:
@@ -276,7 +311,7 @@ The roadmap includes features specifically motivated by agentic use cases — se
 | Structured error classes | v0.7 | Handle `TxBuilderValidationError` vs `TxBuilderNetworkError` programmatically — no string parsing |
 | Dry-run / describe mode | v0.7 | Inspect what a built transaction will do before any network call |
 | State serialization | v0.8 | Pause a partially built transaction, serialize it, resume in a different process or session |
-| `TxBuilder.fromXDR()` | v0.7 | Reconstruct a builder from an existing XDR envelope |
+| `TxBuilder.fromXDR()` | Available | Reconstruct a builder from an existing XDR envelope |
 | Multi-tx sequencing | v0.9 | A `TxSequence` construct for chaining dependent transactions with rollback strategy |
 
 ---
@@ -308,11 +343,20 @@ See [docs/installation.md](docs/installation.md) for advanced setup, ESM configu
 
 ## Quick Start
 
+Before running the transaction, ensure your account exists on Testnet by funding its public key via the [Stellar Friendbot](https://friendbot.stellar.org):
+`https://friendbot.stellar.org/?addr=<PUBLIC_KEY>`
+
 ```typescript
 import { TxBuilder } from '@stellarbuild/stellar-flow';
 import { Keypair } from '@stellar/stellar-sdk';
 
-const sourceKeypair = Keypair.fromSecret('SCZANGBA5RLPKD2EPQNZJ4QPIMESUHW26IUSQQ7VFXZ4HNPNGJXS23');
+// Generate a testnet keypair
+const sourceKeypair = Keypair.random();
+console.log('Testnet account:', sourceKeypair.publicKey());
+
+// Fund the public key above via Friendbot before running:
+// https://friendbot.stellar.org/?addr=<PUBLIC_KEY>
+// Note: The generated secret key is temporary and must be kept private. Do not log or expose it.
 
 const tx = await TxBuilder.for(sourceKeypair, { network: 'testnet' })
   .addPayment({
@@ -460,6 +504,61 @@ const result = await built
   .submit();
 ```
 
+### Multi-Signature Workflow (Co-Signing via XDR)
+
+When collecting signatures asynchronously across parties or air-gapped signers, restore the signed envelope using `BuiltTransaction.fromXDR()` without re-fetching account sequences or dropping existing signatures:
+
+```typescript
+import { BuiltTransaction } from '@stellarbuild/stellar-flow';
+
+// 1. Restore the envelope from base64 XDR created by Party A
+const envelope = BuiltTransaction.fromXDR(incomingXdr, { network: 'testnet' });
+
+// 2. Inspect envelope hash and existing signatures
+console.log('Transaction hash:', envelope.hash());
+console.log('Signatures present:', envelope.signatures.length);
+
+// 3. Add Party B's signature (duplicate sign calls are safe no-ops)
+envelope.sign(partyBKeypair);
+
+// 4. Submit to Horizon or export updated XDR for the next signer
+const result = await envelope.submit();
+console.log('Transaction applied in ledger:', result.ledger);
+```
+
+### Fee-Bump Transactions (CAP-0015 Fee Sponsorship)
+
+Stellar CAP-0015 fee-bump transactions allow a sponsor account (`feeSource`) to pay the transaction fee for an inner transaction without modifying the inner transaction's operations, sequence numbers, or authorization.
+
+The inner transaction must be signed before wrapping because the outer fee-bump transaction hash cryptographically covers the inner envelope and its signatures:
+
+```typescript
+import { TxBuilder, FeeBumpBuiltTransaction } from '@stellarbuild/stellar-flow';
+
+// 1. Construct and sign the inner transaction
+const tx = await TxBuilder.for(userKeypair, { network: 'testnet' })
+  .addPayment({ destination: DEST, amount: '10', asset: 'XLM' })
+  .build();
+tx.sign(userKeypair);
+
+// 2. Sponsor wraps the signed inner transaction
+const feeBump = tx.wrapInFeeBump({
+  feeSource: sponsorKeypair, // G-address, M-address, or Keypair
+  baseFee: '200',            // optional inclusion fee rate in stroops
+});
+
+// 3. Sponsor signs the outer envelope and submits
+feeBump.sign(sponsorKeypair);
+const result = await feeBump.submit();
+console.log('Fee-bump submission hash:', result.hash);
+
+// 4. Asynchronous co-signing / restoration via dedicated factory
+const exportedXdr = feeBump.toXDR();
+const restored = FeeBumpBuiltTransaction.fromXDR(exportedXdr, { network: 'testnet' });
+console.log('Restored feeSource:', restored.feeSource);
+console.log('Restored outer signatures:', restored.signatures.length);
+```
+
 ### Get XDR Without Submitting
 
 Export the transaction as a raw XDR string to send to an external signer, the [Stellar Laboratory](https://lab.stellar.org), or a Freighter browser wallet.
@@ -549,6 +648,7 @@ import type {
   InvokeContractParams,
   TimeboundParams,
   BuiltTransaction,
+  InspectableBuiltTransaction,
   SubmitResult,
 } from '@stellarbuild/stellar-flow';
 ```
@@ -559,7 +659,7 @@ import type {
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/stellarbuild/stellar-flow.git
+git clone https://github.com/stellardev-kit/stellar-flow.git
 cd stellar-flow
 
 # 2. Install dependencies
@@ -662,8 +762,8 @@ Quick summary:
 Upcoming highlights:
 
 - **v0.5** — `PathPaymentStrictReceive`, claimable balances, sponsorship operations
-- **v0.6** — Full fee bump transaction support
-- **v0.7** — Structured error classes, dry-run mode, `TxBuilder.fromXDR()`
+- **v0.6** — CAP-0015 fee-bump transaction support and multi-signature preservation *(Implemented)*
+- **v0.7** — Additional structured error codes and simulation mode
 - **v0.8** — Agent-focused: state serialization, operation introspection
 - **v1.0** — Stable API, full Soroban coverage, comprehensive integration tests
 
@@ -679,7 +779,7 @@ See [FAQ.md](FAQ.md) for answers to common questions.
 
 ## License
 
-[MIT](LICENSE) © [StellarBuild](https://stellarbuild.io)[MIT](LICENSE) © [stellarbuild](https://github.com/stellarbuild)
+[MIT](LICENSE) © [StellarBuild](https://stellarbuild.io) · [stellardev-kit](https://github.com/stellardev-kit)
 
 ---
 
@@ -687,4 +787,4 @@ See [FAQ.md](FAQ.md) for answers to common questions.
 
 - [Stellar Development Foundation](https://stellar.org) for the Stellar network and JavaScript SDK
 - The [Stellar Ecosystem Proposals](https://github.com/stellar/stellar-protocol/tree/master/ecosystem) community
-- All [contributors](https://github.com/stellarbuild/stellar-flow/graphs/contributors) who have improved this library
+- All [contributors](https://github.com/stellardev-kit/stellar-flow/graphs/contributors) who have improved this library

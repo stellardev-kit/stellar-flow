@@ -12,7 +12,7 @@ Please try the following first:
    [`docs/`](docs/) directory.
 2. **Check the [FAQ](FAQ.md)** — your question may already be answered.
 3. **Search existing issues** —
-   [github.com/stellarbuild/stellar-flow/issues](https://github.com/stellarbuild/stellar-flow/issues)
+   [github.com/stellardev-kit/stellar-flow/issues](https://github.com/stellardev-kit/stellar-flow/issues)
 4. **Check the [Troubleshooting guide](docs/troubleshooting.md)** for common
    errors and resolutions.
 
@@ -24,7 +24,7 @@ Please try the following first:
 
 For questions, ideas, and general discussion:
 
-[github.com/stellarbuild/stellar-flow/discussions](https://github.com/stellarbuild/stellar-flow/discussions)
+[github.com/stellardev-kit/stellar-flow/discussions](https://github.com/stellardev-kit/stellar-flow/discussions)
 
 | Category | Purpose |
 |---|---|
@@ -37,9 +37,9 @@ For questions, ideas, and general discussion:
 
 For confirmed bugs and feature requests only — not for support questions.
 
-- [Report a bug](https://github.com/stellarbuild/stellar-flow/issues/new?template=bug_report.yml)
-- [Request a feature](https://github.com/stellarbuild/stellar-flow/issues/new?template=feature_request.yml)
-- [Report a documentation issue](https://github.com/stellarbuild/stellar-flow/issues/new?template=documentation_issue.yml)
+- [Report a bug](https://github.com/stellardev-kit/stellar-flow/issues/new?template=bug_report.yml)
+- [Request a feature](https://github.com/stellardev-kit/stellar-flow/issues/new?template=feature_request.yml)
+- [Report a documentation issue](https://github.com/stellardev-kit/stellar-flow/issues/new?template=documentation_issue.yml)
 
 For private matters or security concerns, see the
 [Security Policy](SECURITY.md) — reports go through GitHub's private

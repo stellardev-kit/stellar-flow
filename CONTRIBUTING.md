@@ -24,7 +24,7 @@ Thank you for your interest in contributing to `stellar-flow`. This guide covers
 
 This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold these standards. Please report unacceptable behaviour via the maintainer's
 [GitHub profile](https://github.com/T-kesh) or the repository's
-[Security tab](https://github.com/stellarbuild/stellar-flow/security).
+[Security tab](https://github.com/stellardev-kit/stellar-flow/security).
 
 ---
 
@@ -34,12 +34,12 @@ You do not need to write code to make a meaningful contribution:
 
 | Type | How |
 |---|---|
-| 🐛 Report a bug | Open a [Bug Report](https://github.com/stellarbuild/stellar-flow/issues/new?template=bug_report.yml) |
-| 🚀 Suggest a feature | Open a [Feature Request](https://github.com/stellarbuild/stellar-flow/issues/new?template=feature_request.yml) |
-| 📚 Improve docs | Open a [Documentation Issue](https://github.com/stellarbuild/stellar-flow/issues/new?template=documentation_issue.yml) or a PR |
+| 🐛 Report a bug | Open a [Bug Report](https://github.com/stellardev-kit/stellar-flow/issues/new?template=bug_report.yml) |
+| 🚀 Suggest a feature | Open a [Feature Request](https://github.com/stellardev-kit/stellar-flow/issues/new?template=feature_request.yml) |
+| 📚 Improve docs | Open a [Documentation Issue](https://github.com/stellardev-kit/stellar-flow/issues/new?template=documentation_issue.yml) or a PR |
 | 🔧 Fix a bug | Assign yourself to an open issue and submit a PR |
 | ✅ Write tests | Improve test coverage for untested edge cases |
-| 💬 Answer questions | Help others in [GitHub Discussions](https://github.com/stellarbuild/stellar-flow/discussions) |
+| 💬 Answer questions | Help others in [GitHub Discussions](https://github.com/stellardev-kit/stellar-flow/discussions) |
 
 ---
 
@@ -61,7 +61,7 @@ git clone https://github.com/<your-username>/stellar-flow.git
 cd stellar-flow
 
 # 2. Add the upstream remote
-git remote add upstream https://github.com/stellarbuild/stellar-flow.git
+git remote add upstream https://github.com/stellardev-kit/stellar-flow.git
 
 # 3. Install dependencies
 npm install
@@ -158,23 +158,24 @@ Migration: replace all calls to addManageOffer() with addManageSellOffer().
 
 ## Branch Strategy
 
+This project follows trunk-based development targeting `main`:
+
 | Branch | Purpose |
 |---|---|
-| `main` | Production-ready code — protected, requires PR |
-| `develop` | Integration branch for upcoming releases |
+| `main` | Primary integration and production branch — protected, requires PR |
 | `feat/<name>` | Feature branches |
 | `fix/<name>` | Bug fix branches |
 | `docs/<name>` | Documentation-only branches |
 | `chore/<name>` | Tooling or build changes |
 
-Always branch from `develop` for new work, not `main`.
+Always branch from `main` for new work.
 
 ---
 
 ## Pull Request Process
 
 1. **Create an issue first** for significant changes, so the approach can be discussed before you invest time in implementation.
-2. **Branch from `develop`**: `git checkout -b feat/my-feature develop`
+2. **Branch from `main`**: `git checkout -b feat/my-feature main`
 3. **Keep PRs focused**: one logical change per PR. Split large changes into smaller, reviewable pieces.
 4. **Fill in the PR template** completely — incomplete templates will be returned.
 5. **Ensure all checks pass** before requesting review:
@@ -266,11 +267,10 @@ See [docs/coding-standards.md](docs/coding-standards.md) for the complete style 
 
 Releases are managed by maintainers. The process is:
 
-1. Merge all changes to `develop`.
-2. Bump the version in `package.json` following [Semantic Versioning](https://semver.org/).
-3. Update `CHANGELOG.md` — move `[Unreleased]` items to the new version section.
-4. Open a PR from `develop` → `main` labelled `release: vX.Y.Z`.
-5. Merge and tag: `git tag vX.Y.Z && git push --tags`.
-6. The `release.yml` workflow publishes to npm automatically.
+1. Create a short-lived release branch (`release/vX.Y.Z`) from up-to-date `main`.
+2. Bump the version in `package.json` following [Semantic Versioning](https://semver.org/) and update `CHANGELOG.md`.
+3. Open a release PR targeting `main` and merge it after checks pass.
+4. On merged `main`, create and push the release tag: `git tag vX.Y.Z && git push upstream vX.Y.Z`.
+5. The `release.yml` workflow publishes to npm automatically.
 
 See [docs/publishing.md](docs/publishing.md) for the full release runbook.

@@ -9,7 +9,7 @@ This roadmap is written to be useful to two audiences:
 - **AI agents and automated systems** that need to construct and submit transactions programmatically
 
 To propose an addition to the roadmap, open a
-[Feature Request](https://github.com/stellarbuild/stellar-flow/issues/new?template=feature_request.yml).
+[Feature Request](https://github.com/stellardev-kit/stellar-flow/issues/new?template=feature_request.yml).
 
 ---
 
@@ -71,17 +71,20 @@ Target: Q3 2026 *(carried forward)*
 - 📋 `addRevokeSponsorship()` — revoke account, trustline, or offer sponsorship
 - 📋 `addBeginSponsoringFutureReserves()` / `addEndSponsoringFutureReserves()`
 
-### v0.6.0 — Fee Bump Transactions
+### v0.6.0 — Fee Bump Transactions & Multi-Sig Preservation
 Target: Q3 2026
 
-- 📋 Full `wrapInFeeBump()` implementation using `TransactionBuilder.buildFeeBumpTransaction()`
-- 📋 Fee bump XDR export
-- 📋 Fee bump submission via Horizon
+- ✅ Full post-build `wrapInFeeBump()` implementation (`InspectableBuiltTransaction.wrapInFeeBump()`)
+- ✅ `FeeBumpBuiltTransaction` interface and outer fee-bump signing
+- ✅ Dedicated `FeeBumpBuiltTransaction.fromXDR()` deserialization
+- ✅ Fee bump submission via Horizon
+- ✅ Inner signature preservation and independent 20-signature envelope limits
+- ✅ Multi-signature envelope preservation via `BuiltTransaction.fromXDR()`
+- ✅ `TxBuilder.fromXDR()` — reconstruct a builder from an existing XDR envelope
 
 ### v0.7.0 — Developer Experience & Agent Reliability
 Target: Q3 2026
 
-- 📋 `TxBuilder.fromXDR()` — reconstruct a builder from an existing XDR envelope, useful for resuming or inspecting transactions created elsewhere
 - 📋 `simulate()` method — dry-run Soroban transaction simulation without submitting; returns fee estimate and resource usage
 - 📋 `describe()` method — return a plain JavaScript object describing all queued operations, memo, timebounds, and fee config without making any network call; designed for agent inspection and human-readable logging
 - 📋 `estimateFee()` — query Horizon's current base fee recommendation before building
@@ -141,6 +144,6 @@ Target: Q2 2027
 
 ## How to Influence the Roadmap
 
-1. Open a [Feature Request](https://github.com/stellarbuild/stellar-flow/issues/new?template=feature_request.yml) describing your use case.
-2. Participate in [GitHub Discussions](https://github.com/stellarbuild/stellar-flow/discussions) to share your priorities.
+1. Open a [Feature Request](https://github.com/stellardev-kit/stellar-flow/issues/new?template=feature_request.yml) describing your use case.
+2. Participate in [GitHub Discussions](https://github.com/stellardev-kit/stellar-flow/discussions) to share your priorities.
 3. Submit a pull request — working implementations are the most effective way to accelerate roadmap items.

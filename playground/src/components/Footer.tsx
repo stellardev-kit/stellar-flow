@@ -31,7 +31,7 @@ export function Footer() {
             Soroban SDK
           </a>
           <a
-            href="https://github.com/stellarbuild/stellar-flow"
+            href="https://github.com/stellardev-kit/stellar-flow"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-link"

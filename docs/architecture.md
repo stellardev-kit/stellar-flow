@@ -31,10 +31,10 @@ to the Stellar SDK and Horizon.
 │  │                        addChangeTrust() / ...           │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                                                                  │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
-│  │      Memo        │  │   Timebounds      │  │  FeeBump     │  │
-│  │  Memo.text(str)  │  │  { min, max }     │  │  Config      │  │
-│  └──────────────────┘  └──────────────────┘  └──────────────┘  │
+│  ┌──────────────────┐  ┌──────────────────┐                     │
+│  │      Memo        │  │   Timebounds      │                     │
+│  │  Memo.text(str)  │  │  { min, max }     │                     │
+│  └──────────────────┘  └──────────────────┘                     │
 │                                                                  │
 │                        .build()  (async)                         │
 └──────────────────────────────┬──────────────────────────────────┘
@@ -52,12 +52,13 @@ to the Stellar SDK and Horizon.
           │
           ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      BuiltTransaction                            │
+│              BuiltTransaction / InspectableBuiltTx              │
 │                                                                  │
-│   .sign(keypair)   →  tx.sign(keypair)   (mutates, returns this) │
-│   .toXDR()         →  tx.toXDR()                                │
-│   .submit()        →  server.submitTransaction(tx)              │
-│   .xdr             →  current XDR string (updated after sign)   │
+│   .sign(keypair)      →  tx.sign(keypair) (mutates, returns this)│
+│   .wrapInFeeBump(opt) →  FeeBumpBuiltTransaction (CAP-0015)     │
+│   .toXDR()            →  tx.toXDR()                             │
+│   .submit()           →  server.submitTransaction(tx)           │
+│   .xdr                →  current XDR string (updated after sign)│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -88,7 +89,7 @@ Contains all public-facing TypeScript interfaces:
 | `PathPaymentParams` | Parameters for `addPathPayment()` |
 | `SetOptionsParams` | Parameters for `addSetOptions()` |
 | `ManageDataParams` | Parameters for `addManageData()` |
-| `InvokeContractParams` | Parameters for `invokeContract()` (planned) |
+| `InvokeContractParams` | Parameters for `invokeContract()` |
 | `TimeboundParams` | Parameters for `setTimebounds()` |
 | `BuiltTransaction` | Interface returned by `build()` |
 | `SubmitResult` | Interface returned by `submit()` |
@@ -123,8 +124,6 @@ State initialised:
 - `operations: xdr.Operation[]` — empty queue
 - `memo?: Memo` — undefined
 - `timebounds?: { minTime, maxTime }` — undefined
-- `feeBumpSource?: string` — undefined
-- `feeBumpFee?: string` — undefined
 
 ### Stage 2: Operation Accumulation
 

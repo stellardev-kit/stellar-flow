@@ -10,13 +10,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- **CAP-0015 Fee-Bump Transactions:** Post-build fee sponsorship via `InspectableBuiltTransaction.prototype.wrapInFeeBump({ feeSource, baseFee })`, returning a `FeeBumpBuiltTransaction` ready for outer fee-source signing and submission.
+- **`FeeBumpBuiltTransaction.fromXDR()`:** Deserialization companion factory for fee-bump envelopes with validation of `network` and `networkPassphrase` consistency and automatic Horizon URL inference for standard network passphrases (`Networks.PUBLIC`, `Networks.TESTNET`, `Networks.FUTURENET`).
+- **Multi-Signature Envelope Preservation:** `BuiltTransaction.fromXDR()` companion factory for restoring existing transaction envelopes while preserving all pre-existing signatures, account sequence numbers, operation-level custom source accounts, and Soroban metadata (`ext.sorobanData()`, resource fees, footprint keys, and operation `auth` entries) without querying Horizon.
+- **`InspectableBuiltTransaction` Interface:** Rich extension of `BuiltTransaction` returned by `TxBuilder.prototype.build()` and `BuiltTransaction.fromXDR()`, exposing `.hash()`, `.signatures`, and `.wrapInFeeBump()`.
+- **Muxed Account (SEP-0023 / CAP-0027) Fee Source Support:** Complete support for `M...` muxed accounts as fee-bump fee sources across construction, signing, XDR serialization, and deserialization.
+- **Stroop Fee Precision:** Exact integer stroop fee calculations using BigInt arithmetic, with ceiling division for fractional inclusion fee rates and signed Int64 overflow boundary checks.
+
 ### Changed
-- `wrapInFeeBump()` now throws **synchronously at the call site** instead of deferring the error
-  to `build()`. This aligns the method with the library's established eager-validation design
-  (ADR-002) and surfaces the "not yet implemented" state at the point where the call is made,
-  not after an async round-trip to Horizon. This is a **breaking change** for any code that
-  called `wrapInFeeBump()` and expected `build()` to throw — update such code to wrap the
-  `wrapInFeeBump()` call in a `try/catch` block instead.
+- `BuiltTransaction` public interface restored to its original 4-member contract (`xdr`, `sign`, `submit`, `toXDR`) to guarantee 100% backwards compatibility with existing implementations.
+- `TxBuilder.prototype.wrapInFeeBump()` deprecated with informative error directing consumers to the post-build `tx.wrapInFeeBump()` workflow.
 
 ### Removed
 - Internal `feeBumpSource` and `feeBumpFee` fields from `TxBuilder` (were unused dead state).
@@ -101,8 +105,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Full TypeScript declarations
 - Unit test suite with Horizon mock
 
-[Unreleased]: https://github.com/stellarbuild/stellar-flow/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/stellarbuild/stellar-flow/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/stellarbuild/stellar-flow/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/stellarbuild/stellar-flow/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/stellarbuild/stellar-flow/releases/tag/v0.1.0
+[Unreleased]: https://github.com/stellardev-kit/stellar-flow/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/stellardev-kit/stellar-flow/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/stellardev-kit/stellar-flow/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/stellardev-kit/stellar-flow/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/stellardev-kit/stellar-flow/releases/tag/v0.1.0

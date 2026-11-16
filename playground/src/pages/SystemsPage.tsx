@@ -17,14 +17,14 @@ interface TxOperation {
 
 export function SystemsPage() {
   const [sourceKey, setSourceKey] = useState('GBX6Y7C2M8P4T1V9W0Q3Z5A7K9E4ZW3J2L1M0N9P8Q7R6S5T4U3V2W1');
-  const [network, setNetwork] = useState<'TESTNET' | 'PUBLIC' | 'FUTURENET'>('TESTNET');
+  const [network, setNetwork] = useState<'testnet' | 'mainnet' | 'futurenet'>('testnet');
   const [fee, setFee] = useState('100');
   const [timeoutSecs, setTimeoutSecs] = useState('30');
   const [activeStep, setActiveStep] = useState<number>(1);
   const [isCompiling, setIsCompiling] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     '[INIT] Sequence compiler environment ready. Protocol v2.4.1 initialized.',
-    '[INFO] Network target: TESTNET (Passphrase: "Test SDF Network ; September 2015")',
+    '[INFO] Initial network target: testnet',
     '[STANDBY] Awaiting sequence compilation triggers...'
   ]);
 
@@ -255,11 +255,11 @@ export function SystemsPage() {
                       <select
                         className="swiss-input swiss-input-mono"
                         value={network}
-                        onChange={(e) => setNetwork(e.target.value as any)}
+                        onChange={(e) => setNetwork(e.target.value as 'testnet' | 'mainnet' | 'futurenet')}
                       >
-                        <option value="TESTNET">Testnet</option>
-                        <option value="PUBLIC">Public</option>
-                        <option value="FUTURENET">Futurenet</option>
+                        <option value="testnet">Testnet</option>
+                        <option value="mainnet">Mainnet (Public)</option>
+                        <option value="futurenet">Futurenet</option>
                       </select>
                     </div>
 

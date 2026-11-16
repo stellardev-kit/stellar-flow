@@ -23,7 +23,7 @@ git clone https://github.com/<your-username>/stellar-flow.git
 cd stellar-flow
 
 # 2. Add the upstream remote to stay in sync
-git remote add upstream https://github.com/stellarbuild/stellar-flow.git
+git remote add upstream https://github.com/stellardev-kit/stellar-flow.git
 
 # 3. Install all dependencies
 npm install
@@ -184,9 +184,9 @@ tests you write.
 Before starting new work, sync your fork:
 
 ```bash
-git checkout develop
+git checkout main
 git fetch upstream
-git merge upstream/develop
+git merge upstream/main
 ```
 
 ---
